@@ -11,12 +11,10 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 
 public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.Holder>{
-    List<User> data = new ArrayList<>();
-    public void setDataAndRefresh(List<User> data){
+    List<Memo> data = new ArrayList<>();
+    public void setDataAndRefresh(List<Memo> data){
         this.data = data;
         notifyDataSetChanged();
     }
@@ -30,10 +28,8 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.Holder>{
 
     @Override
     public void onBindViewHolder(@NonNull Holder holder, int position) {
-        User user = data.get(position);
-        holder.id.setText(user.id);
-        holder.name.setText(user.username);
-        holder.email.setText(user.email);
+        Memo memo = data.get(position);
+        holder.textView.setText(memo.memo);
     }
 
     @Override
@@ -42,12 +38,11 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.Holder>{
     }
 
     public class Holder extends RecyclerView.ViewHolder{
-        TextView id,name,email;
+        TextView textView;
+        Memo memo;
         public Holder(View itemView) {
             super(itemView);
-            id = itemView.findViewById(R.id.textId);
-            name = itemView.findViewById(R.id.textName);
-            email = itemView.findViewById(R.id.textEmail);
+            textView = itemView.findViewById(R.id.textMemo);
         }
     }
 }

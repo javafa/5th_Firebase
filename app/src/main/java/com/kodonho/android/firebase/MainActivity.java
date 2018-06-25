@@ -1,5 +1,6 @@
 package com.kodonho.android.firebase;
 
+import android.os.PersistableBundle;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -21,11 +22,8 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity {
     FirebaseDatabase database;
-    DatabaseReference userRef;
-    @BindView(R.id.editId) EditText editId;
-    @BindView(R.id.editPassword) EditText editPassword;
-    @BindView(R.id.editEmail) EditText editEmail;
-    @BindView(R.id.editName) EditText editName;
+    DatabaseReference memoRef;
+    @BindView(R.id.editMemo) EditText editMemo;
     @BindView(R.id.recyclerView) RecyclerView recyclerView;
 
     CustomAdapter adapter;
@@ -37,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
         // 화면을 바인딩
         ButterKnife.bind(this);
         database = FirebaseDatabase.getInstance();
-        userRef = database.getReference("users");
+        memoRef = database.getReference("memo");
 
         adapter = new CustomAdapter();
         recyclerView.setAdapter(adapter);
@@ -45,30 +43,28 @@ public class MainActivity extends AppCompatActivity {
 
         setListener();
     }
-    public void addUser(View view){
-        String id = editId.getText().toString();
-        String password = editPassword.getText().toString();
-        String email = editEmail.getText().toString();
-        String name = editName.getText().toString();
-        writeNewUser(id, name, email, password);
+    public void addMemo(View view){
+
+        writeNewMemo();
     }
-    private void writeNewUser(String userId, String name, String email, String password) {
-        User user = new User(userId, name, email, password);
-        userRef.child(userId).setValue(user);
+    private void writeNewMemo() {
+        String key = memoRef.push().getKey(); // 레퍼런스 밑에 키를 자동으로 생성
+        String text = editMemo.getText().toString();
+        Memo memo = new Memo(key, text);
+
+        memoRef.child(key).setValue(memo);
     }
 
     private void setListener(){
-        userRef.addValueEventListener(new ValueEventListener() {
+        memoRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                List<User> data = new ArrayList<>();
+                List<Memo> data = new ArrayList<>();
                 // 레퍼런스 밑의 목록 가져오기
                 for(DataSnapshot child : dataSnapshot.getChildren()){
-                    // 키 꺼내기
-                    String userId = child.getKey();
                     // 값 꺼내기
-                    User user = child.getValue(User.class);
-                    data.add(user);
+                    Memo memo = child.getValue(Memo.class);
+                    data.add(memo);
                 }
                 // 아답터에 꺼낸 데이터 세팅하기
                 adapter.setDataAndRefresh(data);
@@ -79,5 +75,10 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
     }
 }
